@@ -1,6 +1,7 @@
 from django.conf import settings
 import copy
 
+
 class ScaffoldReport(object):
     """ Base class for any actual scaffold reports
     A scaffold report is named after UI effects for moving
@@ -30,8 +31,8 @@ class ScaffoldReport(object):
     appy_template = None
 
     def __init__(self):
-        self._possible_filters = [] # developer selected filters from subclass
-        self._active_filters = [] # end user selected filters from view
+        self._possible_filters = []  # developer selected filters from subclass
+        self._active_filters = []  # end user selected filters from view
         self.report_context = {}
         self.filter_errors = []
         self.add_fields = []
@@ -39,7 +40,7 @@ class ScaffoldReport(object):
         for possible_filter in self.filters:
             if possible_filter.get_name() in field_names:
                 raise Exception(
-                    'Duplicate field names in scaffold report. '\
+                    'Duplicate field names in scaffold report. ' \
                     'Please set a different name for {}.'.format(possible_filter.get_name()))
             field_names += [possible_filter.get_name()]
             self._possible_filters += [possible_filter]
@@ -57,7 +58,7 @@ class ScaffoldReport(object):
             return request.user.has_perms(self.permissions_required)
         else:
             return request.user.has_perm(
-                    '{}.change_{}'.format(self.model._meta.app_label, self.model._meta.model_name))
+                '{}.change_{}'.format(self.model._meta.app_label, self.model._meta.model_name))
 
     @property
     def get_name(self):
@@ -144,7 +145,6 @@ class ScaffoldReport(object):
             field = field[0]
         return field
 
-
     def get_preview_fields(self):
         if self.preview_fields:
             preview_fields = []
@@ -189,14 +189,15 @@ class ReportButton(object):
 try:
     from collections import OrderedDict
 except:
-    OrderedDict = dict # pyflakes:ignore
+    OrderedDict = dict  # pyflakes:ignore
+
 
 def autodiscover():
     """
     Auto-discover INSTALLED_APPS report.py modules and fail silently when
     not present. Borrowed form django.contrib.admin
     """
-    from django.utils.importlib import import_module
+    from importlib import import_module
     from django.utils.module_loading import module_has_submodule
 
     global scaffold_reports
@@ -210,6 +211,7 @@ def autodiscover():
             scaffold_eports = before_import_registry
             if module_has_submodule(mod, 'scaffold_reports'):
                 raise
+
 
 class ScaffoldReportClassManager(object):
     """
