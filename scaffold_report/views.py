@@ -1,11 +1,8 @@
-from django.core.servers.basehttp import FileWrapper
+from wsgiref.util import FileWrapper
 from django.http import Http404, HttpResponse, HttpResponseForbidden
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.views.generic import TemplateView
-from django.views.generic import ListView
-from django.views.generic.edit import FormView
-from django.views.generic.edit import ProcessFormView
 import simplejson
 from report_utils.utils import DataExportMixin
 from .report import scaffold_reports
@@ -13,6 +10,7 @@ import tempfile
 import json
 import time
 import os
+
 
 class ScaffoldReportMixin(object):
     def dispatch(self, request, *args, **kwargs):
@@ -48,9 +46,9 @@ class DownloadReportView(DataExportMixin, ScaffoldReportMixin, TemplateView):
             data = simplejson.loads(request.POST['data'])
             self.report.handle_post_data(data)
             if download_type == "preview":
-                preview=True
+                preview = True
             else:
-                preview=False
+                preview = False
             context['object_list'] = self.report.report_to_list(
                 user=self.request.user, preview=preview)
             context['headers'] = self.report.get_preview_fields()
@@ -96,14 +94,15 @@ class DownloadReportView(DataExportMixin, ScaffoldReportMixin, TemplateView):
                 content = "application/rtf"
             elif ext == '.ods':
                 content = "application/vnd.oasis.opendocument.spreadsheet"
-            else: # odt
+            else:  # odt
                 content = "application/vnd.oasis.opendocument.text"
 
             wrapper = FileWrapper(file(outfile_name))
             response = HttpResponse(wrapper, content_type=content)
             response['Content-Length'] = os.path.getsize(outfile_name)
             response['Content-Disposition'] = 'attachment; filename=' + filename + ext
-            try: os.remove(file_name)
-            except: pass # At least it's in the tmp folder
+            try:
+                os.remove(outfile_name)
+            except:
+                pass  # At least it's in the tmp folder
             return response
-
